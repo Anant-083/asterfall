@@ -1,9 +1,9 @@
 # Render Blueprint for the OpenJarvis FastAPI server.
 # Deploys src/openjarvis/server/app.py via deploy/docker/Dockerfile.
-# Apply at: https://dashboard.render.com/blueprint/new?repo=https://github.com/open-jarvis/OpenJarvis
+# Apply at: https://dashboard.render.com/blueprint/new?repo=https://github.com/Anant-083/jarvis
 services:
   - type: web
-    name: openjarvis-server
+    name: jarvis-glass
     runtime: docker
     plan: free
     region: oregon
@@ -15,13 +15,13 @@ services:
     # Pin a cloud model as well as the engine. The repository's default model
     # is local-only, so omitting this would make `jarvis serve` reject the
     # otherwise healthy cloud engine during startup.
-    dockerCommand: serve --host 0.0.0.0 --port 10000 --engine cloud --model gpt-4o-mini
+    dockerCommand: serve --host 0.0.0.0 --port 10000 --engine cloud --model openrouter/openai/gpt-4o-mini
     healthCheckPath: /health
     autoDeploy: true
     envVars:
       # Force the cloud engine path. The free Render plan has no GPU and the
       # bundled local backends (Ollama/vLLM) cannot run here. The command above
-      # selects the OpenAI-backed cloud engine and a model it can serve.
+      # selects the OpenRouter-backed cloud engine and a model it can serve.
 
       # Keep Render's expected public port aligned with the fixed Docker
       # command above. Change both values together when customizing the port.
@@ -37,7 +37,7 @@ services:
       # are operator-supplied secrets; using one provider here keeps the
       # one-click contract deterministic instead of incorrectly requiring a
       # key for every supported cloud provider.
-      - key: OPENAI_API_KEY
+      - key: OPENROUTER_API_KEY
         sync: false
 
       # The free service filesystem is ephemeral. OpenJarvis state under this

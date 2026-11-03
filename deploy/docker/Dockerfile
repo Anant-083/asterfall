@@ -10,7 +10,7 @@ ARG OPENJARVIS_LEADERBOARD_PUBLIC_ANON=
 
 WORKDIR /frontend
 COPY frontend/package.json frontend/package-lock.json* ./
-RUN npm ci --ignore-scripts 2>/dev/null || npm install
+RUN npm install --global npm@11.19.0 && npm ci --ignore-scripts
 COPY frontend/ .
 RUN VITE_SUPABASE_ANON_KEY="${OPENJARVIS_LEADERBOARD_PUBLIC_ANON}" npm run build
 

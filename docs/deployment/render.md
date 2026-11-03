@@ -2,14 +2,14 @@
 
 The repository's `render.yaml` is a minimal Render Blueprint for the
 OpenJarvis API server. It builds `deploy/docker/Dockerfile`, binds the server to
-Render's default web-service port (`10000`), and uses OpenAI's `gpt-4o-mini`
+Render's default web-service port (`10000`), and uses `openrouter/openai/gpt-4o-mini` via OpenRouter
 through the cloud engine.
 
 ## Create the service
 
 1. Open Render's **New Blueprint Instance** flow and select your OpenJarvis
    fork.
-2. Provide `OPENAI_API_KEY` when Render asks for the Blueprint secret.
+2. Provide `OPENROUTER_API_KEY` when Render asks for the Blueprint secret.
 3. Apply the Blueprint and wait for `/health` to become healthy.
 4. Retrieve the generated `OPENJARVIS_API_KEY` from the Render dashboard and
    send it as `Authorization: Bearer <key>` with API requests.
@@ -43,3 +43,9 @@ preserve the default OpenJarvis home.
 
 The Blueprint intentionally does not declare a disk because Render does not
 support persistent disks on free services.
+
+## Deploy this customized app
+
+Open https://dashboard.render.com/blueprint/new?repo=https://github.com/Anant-083/jarvis and connect your GitHub repository. Enter a replacement OpenRouter API key as the secret `OPENROUTER_API_KEY`; revoke any key previously shared in chat. Do not put the provider key in frontend settings or source code.
+
+After deployment succeeds, open the service URL shown by Render. In the app's Settings, configure its backend API key using the generated `OPENJARVIS_API_KEY` from Render (this is distinct from the provider key). Send a short chat message to verify inference. This deployment has not yet been run or verified on Render.

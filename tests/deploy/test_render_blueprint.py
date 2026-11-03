@@ -75,13 +75,13 @@ def test_render_selects_cloud_engine_through_the_serve_cli(tmp_path: Path) -> No
         "--engine",
         "cloud",
         "--model",
-        "gpt-4o-mini",
+        "openrouter/openai/gpt-4o-mini",
     ]
     parsed = serve.make_context("serve", args[1:])
     assert parsed.params["host"] == "0.0.0.0"
     assert parsed.params["port"] == 10000
     assert parsed.params["engine_key"] == "cloud"
-    assert parsed.params["model_name"] == "gpt-4o-mini"
+    assert parsed.params["model_name"] == "openrouter/openai/gpt-4o-mini"
     assert "OPENJARVIS_ENGINE" not in _env_vars(service)
     assert _env_vars(service)["PORT"] == {"key": "PORT", "value": "10000"}
 
@@ -137,11 +137,11 @@ def test_render_contract_requires_one_supported_cloud_provider() -> None:
     assert service["runtime"] == "docker"
     assert service["dockerfilePath"] == "./deploy/docker/Dockerfile"
     assert service["healthCheckPath"] == "/health"
-    assert env["OPENAI_API_KEY"] == {"key": "OPENAI_API_KEY", "sync": False}
+    assert env["OPENROUTER_API_KEY"] == {"key": "OPENROUTER_API_KEY", "sync": False}
     # Every sync:false entry is mandatory during initial Blueprint creation.
     assert [
         item["key"] for item in service["envVars"] if item.get("sync") is False
-    ] == ["OPENAI_API_KEY"]
+    ] == ["OPENROUTER_API_KEY"]
 
 
 def test_render_free_tier_ephemeral_storage_is_explicitly_documented() -> None:
