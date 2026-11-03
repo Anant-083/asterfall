@@ -61,9 +61,10 @@ def test_render_selects_cloud_engine_through_the_serve_cli(tmp_path: Path) -> No
     assert "$" not in command
     assert "/bin/sh" not in command
 
-    # Render replaces CMD but preserves the image's exec-form ENTRYPOINT.
+    # Render replaces both CMD and ENTRYPOINT.
     # Exercise the resulting argv without starting a real server.
-    argv = [*_docker_json_instruction("ENTRYPOINT"), *shlex.split(command)]
+    argv = shlex.split(command)
+    assert argv[0] == "jarvis"
     args = _run_fake_jarvis(tmp_path, argv)
 
     assert args == [

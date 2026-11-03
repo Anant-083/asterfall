@@ -9,13 +9,13 @@ services:
     region: oregon
     dockerfilePath: ./deploy/docker/Dockerfile
     dockerContext: .
-    # Override the Dockerfile CMD while preserving its `jarvis` entrypoint.
+    # Render overrides both CMD and ENTRYPOINT: include the executable.
     # Render's default web-service port is 10000. Pin PORT and the CLI argument
     # to that same value because Docker commands do not interpolate `$PORT`.
     # Pin a cloud model as well as the engine. The repository's default model
     # is local-only, so omitting this would make `jarvis serve` reject the
     # otherwise healthy cloud engine during startup.
-    dockerCommand: serve --host 0.0.0.0 --port 10000 --engine cloud --model openrouter/openai/gpt-4o-mini
+    dockerCommand: jarvis serve --host 0.0.0.0 --port 10000 --engine cloud --model openrouter/openai/gpt-4o-mini
     healthCheckPath: /health
     autoDeploy: true
     envVars:

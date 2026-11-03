@@ -49,3 +49,13 @@ support persistent disks on free services.
 Open https://dashboard.render.com/blueprint/new?repo=https://github.com/Anant-083/jarvis and connect your GitHub repository. Enter a replacement OpenRouter API key as the secret `OPENROUTER_API_KEY`; revoke any key previously shared in chat. Do not put the provider key in frontend settings or source code.
 
 After deployment succeeds, open the service URL shown by Render. In the app's Settings, configure its backend API key using the generated `OPENJARVIS_API_KEY` from Render (this is distinct from the provider key). Send a short chat message to verify inference. This deployment has not yet been run or verified on Render.
+
+## Manual Docker Command
+
+Render replaces both CMD and ENTRYPOINT. Set Settings → Docker Command to:
+
+```text
+jarvis serve --host 0.0.0.0 --port 10000 --engine cloud --model openrouter/openai/gpt-4o-mini
+```
+
+A manually created service must have this field updated in Render; pushing the Blueprint alone does not update its manual settings.
