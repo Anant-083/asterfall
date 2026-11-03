@@ -1,6 +1,6 @@
 # Asterfall
 
-**Find your gravity.** A cinematic browser game about crossing deep space, following a lost signal, and bringing your spacecraft safely onto unfamiliar worlds.
+**Find your gravity.** A cinematic Solar System explorer with a NASA/JPL-connected atlas, a detailed exploration lander, educational arrival reports, and an original story campaign.
 
 ## Play
 
@@ -12,10 +12,28 @@ npm start
 Open http://localhost:10000. No installation, build, account, AI provider, or API key is needed. Requires Node.js 22+ for the server and a modern browser with Canvas 2D.
 
 - **↑** main thruster · **← →** lateral thrusters · **↓** braking burn
-- **P / Escape** pause · **R** restart · **V** change view
+- **P / Escape** pause · **R** restart · **V** change view · **M** Solar Atlas
 - Touch controls are available on phones.
 - Land inside the illuminated pad with vertical speed ≤28 m/s and horizontal speed ≤18 m/s.
 - The dotted prediction shows your unpowered future path. Fuel is finite. Releasing the controls does not remove momentum.
+
+## Solar Atlas and discoveries
+
+Open **Solar atlas** to pan, zoom, and choose among all eight planets plus the Moon, Europa, and Titan. Transfer sequences compress interplanetary travel into a few seconds. Rocky destinations have playable landing approaches. Gas and ice giants have observation-orbit arrivals because they have no accessible solid surface.
+
+Successful arrivals reveal NASA-linked facts about radius, gravity, atmosphere, orbital period, and the named region. Discovered destinations are saved locally in the browser. Terrain and landing zones are fictional, not NASA surface maps. Real-world gravity values are displayed in field notes; flight physics are tuned for playability.
+
+The metallic Nomad lander includes twin engines, radiator panels, cockpit windows, deployable landing struts, an antenna, and reaction-control jets. The three fictional story destinations remain available separately in the bottom deck.
+
+### NASA/JPL connection
+
+`GET /api/ephemeris` queries the public [NASA/JPL Horizons API](https://ssd.jpl.nasa.gov/horizons/). It requests Sun-centered ecliptic J2000 vectors in AU at 00:00 UTC for the current date. Responses are cached for an hour; partial/failed results retry after the cache interval (fully failed results cache for one minute). Concurrent requests share the same fetch.
+
+Each body retains its data provenance. If JPL is unavailable, the map explicitly labels its circular-orbit estimates. The fallback is illustrative, not an accurate ephemeris. Map distances are compressed, planet sizes are exaggerated, and moons are offset from their parent for readability. The map is not suitable for real navigation.
+
+No NASA API key is needed. The hosting server needs outbound HTTPS access to `ssd.jpl.nasa.gov`. Live requests could not be verified from the development workspace because that destination is blocked; parser, successful-response, partial-failure, and offline behavior were tested with synthetic fixtures. Inspect the atlas status on Render to verify live service access.
+
+Destination facts link to [NASA Science](https://science.nasa.gov/solar-system/). No NASA endorsement is implied.
 
 ## After the signal
 
@@ -34,7 +52,7 @@ cd game
 npm test
 ```
 
-Physics tests exercise gravity, thrust, braking, fuel exhaustion, safe and unsafe landings, trajectory prediction, and a full controlled landing.
+Tests exercise gravity, thrust, braking, fuel exhaustion, safe and unsafe landings, trajectory prediction, controlled landings on all seven real solid-body destinations, Horizons parsing, request coordinates, and honest fallback behavior.
 
 ## Render
 
