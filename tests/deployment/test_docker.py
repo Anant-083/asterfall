@@ -56,10 +56,11 @@ class TestDockerFiles:
     def test_dockerfile_gpu_exists(self):
         assert (DOCKER_DIR / "Dockerfile.gpu").is_file()
 
-    def test_dockerfile_has_entrypoint(self):
+    def test_game_container_starts_node_with_legacy_compatibility(self):
         content = (DOCKER_DIR / "Dockerfile").read_text()
-        assert "ENTRYPOINT" in content
-        assert "jarvis" in content
+        assert 'CMD ["node", "/app/game/server.mjs"]' in content
+        assert '/usr/local/bin/jarvis' in content
+        assert 'COPY --chown=node:node game/' in content
 
     def test_dockerfile_copies_forced_package_includes(self):
         # Every Dockerfile that builds the wheel from an explicit `COPY src/`
@@ -125,7 +126,6 @@ class TestDockerFiles:
 
     def test_dockerfiles_build_native_rust_extension(self):
         build_dockerfiles = [
-            "Dockerfile",
             "Dockerfile.gpu",
             "Dockerfile.gpu.rocm",
             "Dockerfile.sandbox",
@@ -149,7 +149,7 @@ class TestDockerFiles:
                     f"{name}: missing native build marker {marker!r}"
                 )
 
-        for name in ["Dockerfile", "Dockerfile.gpu", "Dockerfile.gpu.rocm"]:
+        for name in ["Dockerfile.gpu", "Dockerfile.gpu.rocm"]:
             content = (DOCKER_DIR / name).read_text()
             assert "COPY rust/ rust/" in content, f"{name}: rust workspace not copied"
             assert content.index("COPY rust/ rust/") < content.index(
@@ -198,7 +198,10 @@ class TestNonRootUser:
     def test_creates_and_switches_to_non_root_user(self):
         for name in self.NON_ROOT:
             content = (DOCKER_DIR / name).read_text()
-            assert "useradd" in content, f"{name}: no useradd"
+            if name == "Dockerfile":
+                assert "USER node" in content  # official Node image supplies this user
+            else:
+                assert "useradd" in content, f"{name}: no useradd"
             # A USER directive switching away from root must exist and not be root.
             user_lines = [
                 ln.strip()
@@ -244,7 +247,6 @@ class TestFrozenInstall:
     """#567 — Docker builds install from the committed, frozen uv.lock."""
 
     BUILD_DOCKERFILES = [
-        "Dockerfile",
         "Dockerfile.gpu",
         "Dockerfile.gpu.rocm",
         "Dockerfile.sandbox",

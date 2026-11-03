@@ -1,0 +1,28 @@
+name: Asterfall game
+on:
+  push:
+    branches: [main]
+    paths: ['game/**', 'deploy/docker/Dockerfile', 'render.yaml', '.github/workflows/game.yml']
+  pull_request:
+    paths: ['game/**', 'deploy/docker/Dockerfile', 'render.yaml', '.github/workflows/game.yml']
+  workflow_dispatch:
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm test --prefix game
+      - run: node --check game/game.mjs
+      - run: docker build -f deploy/docker/Dockerfile -t asterfall:test .
+      - name: Check production server and legacy command compatibility
+        run: |
+          docker run -d --name game -p 10000:10000 asterfall:test jarvis serve
+          for attempt in $(seq 1 20); do
+            if curl --fail http://localhost:10000/health; then break; fi
+            sleep 1
+          done
+          curl --fail http://localhost:10000/ | grep 'Asterfall'
+          docker stop game
