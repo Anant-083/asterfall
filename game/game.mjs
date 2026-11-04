@@ -107,4 +107,4 @@ features=installFeatures({
 });
 $('dimension-toggle').onclick=()=>{if(!flight3D){features.announce('3D is unavailable on this device. The 2D game remains playable.');return;}use3D=!use3D;$('dimension-toggle').textContent=use3D?'3D on':'2D mode';$('dimension-toggle').setAttribute('aria-pressed',String(use3D));};
 import('./flight3d.mjs').then(({createFlight3D})=>{flight3D=createFlight3D($('flight-3d'),()=>{use3D=false;$('dimension-toggle').textContent='2D mode';$('dimension-toggle').setAttribute('aria-pressed','false');features.announce('WebGL is unavailable. Continuing with the 2D view.');});}).catch(()=>{use3D=false;$('dimension-toggle').textContent='2D mode';features.announce('3D could not load. The 2D view is available.');});
-prepareDestination(BODIES.find(b=>b.id==='moon'));setView('cinematic');requestAnimationFrame(loop);
+prepareDestination(BODIES.find(b=>b.id===new URLSearchParams(location.search).get('body'))||BODIES.find(b=>b.id==='moon'));setView('cinematic');requestAnimationFrame(loop);

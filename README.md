@@ -1,6 +1,6 @@
 # Asterfall
 
-**Find your gravity.** A cinematic Solar System explorer with a NASA/JPL-connected atlas, a detailed exploration lander, educational arrival reports, and an original story campaign.
+**Find your gravity.** A laptop and desktop spacecraft simulator with full 360° attitude control, a cockpit, station docking, and separate planetary landing expeditions.
 
 ## Play
 
@@ -9,16 +9,31 @@ cd game
 npm start
 ```
 
-Open http://localhost:10000. No installation, build, account, AI provider, or API key is needed. Requires Node.js 22+ for the server and a modern browser. WebGL2 provides true 3D rendering; a Canvas 2D fallback remains available. Three.js 0.180.0 is vendored locally with its MIT license.
+Open http://localhost:10000 for the new flight simulator. Requires a keyboard, a fine-pointer device, and a viewport at least 960 pixels wide; phone controls are disabled. No installation, build, account, AI provider, or API key is needed. Requires Node.js 22+ for the server and a modern browser. WebGL2 provides true 3D rendering; a Canvas 2D fallback remains available. Three.js 0.180.0 is vendored locally with its MIT license.
 
-- **↑** main thruster · **← →** lateral thrusters · **↓** braking burn
-- **P / Escape** pause · **R** restart · **V** change view · **M** Solar Atlas
-- **W / S** adds forward/back depth movement in flight.
-- Phones: thumbstick steers/lifts, **Depth** switches vertical input to W/S, and a large **BRAKE** button slows all axes.
-- **J** opens the journal; **E** scans a nearby surface landmark.
-- Drag the 3D scene to orbit the exterior camera. **3D on / 2D mode** switches renderers.
-- Land inside the illuminated pad with vertical speed ≤28 m/s and horizontal speed ≤18 m/s.
-- The dotted prediction shows your unpowered future path. Fuel is finite. Releasing the controls does not remove momentum.
+## Desktop simulator controls
+
+- **Arrow keys:** pitch and yaw through 360°; **Q/E:** roll.
+- **W/S:** increase/decrease persistent throttle. Thrust follows the ship's nose.
+- **A/D:** strafe; **R/F:** translate vertically relative to the ship.
+- **X:** cut throttle and brake; **Shift:** boost while throttle is above zero.
+- **Z:** toggle angular damping. With damping off, rotation continues after releasing controls.
+- **C:** cycle chase, cockpit, and 360° exterior views. Drag to look around; scroll to zoom the exterior camera.
+- **Mouse steering:** captures the pointer for cockpit pitch/yaw; Escape releases it and pauses.
+- **P:** pause; **H:** flight manual; **G:** request docking.
+
+Dock at Kepler station within 65 metres, below 8 m/s, facing down its approach corridor. Flight instruments show velocity, throttle, propellant, pitch/yaw/roll, and an artificial horizon. Optional local gravity attracts the ship to the selected destination. Planet contact ends the free-flight session; use **Begin landing expedition** for a playable surface approach.
+
+The navigation computer selects all eleven destinations. **Transfer to approach** resets the ship near the selected globe with fresh fuel; this is a compressed travel shortcut, not continuous orbital travel. Motion has six degrees of freedom and quaternion attitude without rotation limits. Physics and scale are tuned for play, not scientific navigation. The simulator requires WebGL2; a clear error explains unsupported graphics.
+
+## Landing expeditions
+
+Open **Expeditions** or `/expedition` to access the existing Solar Atlas, landing tutorial, rover, journal, and story. The destination handoff preserves the selected body. This mode has a separate, simplified lander control scheme:
+
+- **↑:** lift; **←/→:** steer; **↓:** brake; **W/S:** depth movement.
+- **P/Escape:** pause; **R:** restart; **V:** view; **M:** Solar Atlas; **J:** journal; **E:** scan.
+- Land on the illuminated pad below 28 m/s vertically and 18 m/s horizontally. Fuel and momentum matter.
+- A 2D fallback is available for the expedition mode. Both modes target laptops/desktops.
 
 ## Flight academy, surface exploration, and journal
 
@@ -27,7 +42,7 @@ Open http://localhost:10000. No installation, build, account, AI provider, or AP
 - After a successful surface landing, choose **Deploy surface rover**. Use arrows/thumbstick to drive; get within 45 game metres of a landmark and press **Scan** or **E**. Return to the ship to begin another flight.
 - **Follow the Signal** is an original fictional campaign: recover the four survey-relay transmissions on the Moon, Mars, Europa, and Titan in any order. Geology scans also save to the journal.
 - The **Journal** keeps the latest 40 arrivals, landing scores, scans, fragments, and four photos in this browser's local storage. It can export a JSON backup. Photo captures the scene without the UI. Clearing site data removes the local journal; no account sync is claimed.
-- Haptic feedback is optional and only works where the browser implements vibration. It can be switched off in the flight manual.
+- Phone touch controls are hidden in this desktop edition.
 
 ### Visual resources
 
@@ -68,7 +83,7 @@ cd game
 npm test
 ```
 
-Tests exercise gravity, three-axis thrust and braking, fuel exhaustion, landing alignment, assist/manual priority, all seven real solid-body destinations, journal persistence, relay progression, rover movement, Horizons parsing, request coordinates, and honest fallback behavior.
+Tests additionally exercise ship-relative thrust, unlimited quaternion attitude, momentum, angular damping, free-flight braking, gravity, and docking constraints. Expedition tests exercise gravity, three-axis thrust and braking, fuel exhaustion, landing alignment, assist/manual priority, all seven real solid-body destinations, journal persistence, relay progression, rover movement, Horizons parsing, request coordinates, and honest fallback behavior.
 
 ## Render
 
