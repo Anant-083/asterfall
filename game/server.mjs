@@ -4,8 +4,8 @@ import {readFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import path from 'node:path';
 const root=fileURLToPath(new URL('.',import.meta.url));
-const files=new Set(['index.html','style.css','game.mjs','physics.mjs','solar-data.mjs','atlas.mjs','spacecraft.mjs']);
-const mime={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.mjs':'text/javascript; charset=utf-8'};
+const files=new Set(['index.html','style.css','game.mjs','physics.mjs','solar-data.mjs','atlas.mjs','spacecraft.mjs','mission.mjs','features.mjs','flight3d.mjs','vendor/three.module.js','vendor/three.core.js','assets/earth.jpg','assets/moon.jpg','assets/mars.jpg','assets/europa.jpg','assets/titan.jpg','assets/jupiter.jpg','assets/saturn.jpg','assets/neptune.jpg','assets/venus.jpg','ASSET_CREDITS.md','vendor/THREE-LICENSE.txt']);
+const mime={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.js':'text/javascript; charset=utf-8','.jpg':'image/jpeg','.md':'text/plain; charset=utf-8','.txt':'text/plain; charset=utf-8'};
 const server=http.createServer(async(req,res)=>{
  const pathname=new URL(req.url,'http://localhost').pathname;
  if(pathname==='/api/ephemeris'){const data=await getEphemeris();res.writeHead(200,{'Content-Type':'application/json','Cache-Control':'public, max-age=60'});res.end(JSON.stringify(data));return;}
@@ -14,6 +14,6 @@ const server=http.createServer(async(req,res)=>{
  if(pathname==='/sw.js'){res.writeHead(200,{'Content-Type':'text/javascript','Cache-Control':'no-store'});res.end("self.addEventListener('install',()=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(ks=>Promise.all(ks.map(k=>caches.delete(k)))).then(()=>self.registration.unregister()).then(()=>self.clients.claim())));");return;}
  const file=pathname==='/'?'index.html':pathname.slice(1);
  if(!files.has(file)){res.writeHead(404);res.end('Not found');return;}
- try{const body=await readFile(path.join(root,file));res.writeHead(200,{'Content-Type':mime[path.extname(file)],'Cache-Control':'no-store','X-Content-Type-Options':'nosniff','Referrer-Policy':'strict-origin-when-cross-origin'});res.end(body);}catch{res.writeHead(500);res.end('Unable to load game');}
+ try{const body=await readFile(path.join(root,file));res.writeHead(200,{'Content-Type':mime[path.extname(file)],'Cache-Control':file.startsWith('assets/')||file.startsWith('vendor/')?'public, max-age=86400':'no-store','X-Content-Type-Options':'nosniff','Referrer-Policy':'strict-origin-when-cross-origin'});res.end(body);}catch{res.writeHead(500);res.end('Unable to load game');}
 });
 server.listen(Number(process.env.PORT)||10000,'0.0.0.0',()=>console.log('Asterfall listening on port '+(process.env.PORT||10000)));

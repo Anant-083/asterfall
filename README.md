@@ -9,13 +9,29 @@ cd game
 npm start
 ```
 
-Open http://localhost:10000. No installation, build, account, AI provider, or API key is needed. Requires Node.js 22+ for the server and a modern browser with Canvas 2D.
+Open http://localhost:10000. No installation, build, account, AI provider, or API key is needed. Requires Node.js 22+ for the server and a modern browser. WebGL2 provides true 3D rendering; a Canvas 2D fallback remains available. Three.js 0.180.0 is vendored locally with its MIT license.
 
 - **↑** main thruster · **← →** lateral thrusters · **↓** braking burn
 - **P / Escape** pause · **R** restart · **V** change view · **M** Solar Atlas
-- Touch controls are available on phones.
+- **W / S** adds forward/back depth movement in flight.
+- Phones: thumbstick steers/lifts, **Depth** switches vertical input to W/S, and a large **BRAKE** button slows all axes.
+- **J** opens the journal; **E** scans a nearby surface landmark.
+- Drag the 3D scene to orbit the exterior camera. **3D on / 2D mode** switches renderers.
 - Land inside the illuminated pad with vertical speed ≤28 m/s and horizontal speed ≤18 m/s.
 - The dotted prediction shows your unpowered future path. Fuel is finite. Releasing the controls does not remove momentum.
+
+## Flight academy, surface exploration, and journal
+
+- **Flight academy** teaches thrust, steering, and braking in protected drills, then releases the ship for a real assisted landing. Training can be ended at any time.
+- **Assist** applies steering and braking only on axes without manual input. It consumes normal fuel and does not guarantee a landing after unsafe manual maneuvers.
+- After a successful surface landing, choose **Deploy surface rover**. Use arrows/thumbstick to drive; get within 45 game metres of a landmark and press **Scan** or **E**. Return to the ship to begin another flight.
+- **Follow the Signal** is an original fictional campaign: recover the four survey-relay transmissions on the Moon, Mars, Europa, and Titan in any order. Geology scans also save to the journal.
+- The **Journal** keeps the latest 40 arrivals, landing scores, scans, fragments, and four photos in this browser's local storage. It can export a JSON backup. Photo captures the scene without the UI. Clearing site data removes the local journal; no account sync is claimed.
+- Haptic feedback is optional and only works where the browser implements vibration. It can be switched off in the flight manual.
+
+### Visual resources
+
+Nine planetary globes use original JPEG textures from NASA's official NASA-3D-Resources repository. Credits and exact source paths are in [game/ASSET_CREDITS.md](game/ASSET_CREDITS.md). These are reference maps, not live photographs; some use enhanced/false color. Ground terrain is procedural and differs by destination: lunar craters, red Martian regolith, Europa's fractured ice, and Titan's hazy dunes. No surveyed landing-site fidelity is claimed.
 
 ## Solar Atlas and discoveries
 
@@ -43,7 +59,7 @@ An original three-chapter story inspired by cinematic space exploration, includi
 2. **Ember:** navigate crosswinds beneath a black hole’s accretion glow.
 3. **Nereid:** reach the ice-world station and discover what became of the expedition.
 
-Cinematic, chase, and cockpit/FPV landing-camera views share the same flight physics. The cockpit is a stylized instrument view, not a 3D space simulator. All worlds are available for free flight. Completed chapters and best scores save in browser storage where available. Flight pauses when the tab loses focus.
+Cinematic, chase, and cockpit views share true three-axis flight physics. The default WebGL renderer draws a modeled spacecraft, rover, planetary globes, and terrain; the alternate 2D renderer preserves gameplay on unsupported devices. This is a stylized exploration game, not a scientific orbital-mechanics simulator. All worlds are available for free flight. Completed chapters and best scores save in browser storage where available. Flight pauses when the tab loses focus.
 
 ## Validation
 
@@ -52,7 +68,7 @@ cd game
 npm test
 ```
 
-Tests exercise gravity, thrust, braking, fuel exhaustion, safe and unsafe landings, trajectory prediction, controlled landings on all seven real solid-body destinations, Horizons parsing, request coordinates, and honest fallback behavior.
+Tests exercise gravity, three-axis thrust and braking, fuel exhaustion, landing alignment, assist/manual priority, all seven real solid-body destinations, journal persistence, relay progression, rover movement, Horizons parsing, request coordinates, and honest fallback behavior.
 
 ## Render
 
