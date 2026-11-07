@@ -11,6 +11,14 @@ npm start
 
 Open http://localhost:10000 for the new flight simulator. Requires a keyboard, a fine-pointer device, and a viewport at least 960 pixels wide; phone controls are disabled. No installation, build, account, AI provider, or API key is needed. Requires Node.js 22+ for the server and a modern browser. WebGL2 provides true 3D rendering; a Canvas 2D fallback remains available. Three.js 0.180.0 is vendored locally with its MIT license.
 
+## Multiplayer flight rooms
+
+Open **Wingmates**, enter a pilot name, and choose **Create room**. Send the room code or **Copy invite** link to a friend. They open the same deployed site, enter their name, and choose **Join room**. Up to eight players share the free-flight sector and can see each other's ship, name, status, and distance. **Rendezvous** transfers you near a teammate. Each pilot retains independent navigation, throttle, and pause controls.
+
+The server relays flight snapshots about seven times per second; clients interpolate remote spacecraft. Pausing freezes only your own flight. Rooms use server-issued session tokens and isolated membership, with bounded request payloads, validated state, and update-rate limits. This is cooperative flight with client-simulated movement, not competitive authoritative physics; player-to-player collisions and combat are not implemented. Surface expeditions and their journal remain solo.
+
+Room state is ephemeral and lives in one Node process. Players expire after 20 seconds without valid updates; empty rooms are removed. Deploys/restarts clear all rooms. A network interruption shows a retry status; an expired session asks the player to join again. Keep Render at **one instance** for this version; scaling across multiple processes requires a shared room backend. No database, API key, or extra service is needed. A maximum of 64 active rooms bounds server memory.
+
 ## Desktop simulator controls
 
 - **Arrow keys:** pitch and yaw through 360°; **Q/E:** roll.

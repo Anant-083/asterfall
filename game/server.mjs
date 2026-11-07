@@ -1,13 +1,16 @@
+import {multiplayerHandler} from './multiplayer-server.mjs';
 import http from 'node:http';
 import {getEphemeris} from './ephemeris.mjs';
 import {readFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import path from 'node:path';
 const root=fileURLToPath(new URL('.',import.meta.url));
-const files=new Set(['simulator.html','simulator.css','simulator.mjs','sim-physics.mjs','index.html','style.css','game.mjs','physics.mjs','solar-data.mjs','atlas.mjs','spacecraft.mjs','mission.mjs','features.mjs','flight3d.mjs','vendor/three.module.js','vendor/three.core.js','assets/earth.jpg','assets/moon.jpg','assets/mars.jpg','assets/europa.jpg','assets/titan.jpg','assets/jupiter.jpg','assets/saturn.jpg','assets/neptune.jpg','assets/venus.jpg','ASSET_CREDITS.md','vendor/THREE-LICENSE.txt']);
+const files=new Set(['multiplayer.mjs','simulator.html','simulator.css','simulator.mjs','sim-physics.mjs','index.html','style.css','game.mjs','physics.mjs','solar-data.mjs','atlas.mjs','spacecraft.mjs','mission.mjs','features.mjs','flight3d.mjs','vendor/three.module.js','vendor/three.core.js','assets/earth.jpg','assets/moon.jpg','assets/mars.jpg','assets/europa.jpg','assets/titan.jpg','assets/jupiter.jpg','assets/saturn.jpg','assets/neptune.jpg','assets/venus.jpg','ASSET_CREDITS.md','vendor/THREE-LICENSE.txt']);
 const mime={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.js':'text/javascript; charset=utf-8','.jpg':'image/jpeg','.md':'text/plain; charset=utf-8','.txt':'text/plain; charset=utf-8'};
+const handleMultiplayer=multiplayerHandler();
 const server=http.createServer(async(req,res)=>{
  const pathname=new URL(req.url,'http://localhost').pathname;
+ if(await handleMultiplayer(req,res,pathname))return;
  if(pathname==='/api/ephemeris'){const data=await getEphemeris();res.writeHead(200,{'Content-Type':'application/json','Cache-Control':'public, max-age=60'});res.end(JSON.stringify(data));return;}
  if(pathname==='/health'){res.writeHead(200,{'Content-Type':'application/json'});res.end('{"status":"ok","app":"asterfall"}');return;}
  // A retirement worker replaces cached OpenJarvis workers on the same origin.

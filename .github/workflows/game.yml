@@ -15,7 +15,7 @@ jobs:
         with:
           node-version: '22'
       - run: npm test --prefix game
-      - run: node --check game/game.mjs && node --check game/simulator.mjs && node --check game/sim-physics.mjs
+      - run: node --check game/game.mjs && node --check game/simulator.mjs && node --check game/sim-physics.mjs && node --check game/multiplayer.mjs && node --check game/multiplayer-server.mjs
       - run: docker build -f deploy/docker/Dockerfile -t asterfall:test .
       - name: Check production server and legacy command compatibility
         run: |

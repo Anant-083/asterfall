@@ -1,3 +1,4 @@
+import {installMultiplayer} from './multiplayer.mjs';
 import * as T from './vendor/three.module.js';
 import {newFlight,flightStep,dockingStatus} from './sim-physics.mjs';
 import {BODIES} from './solar-data.mjs';
@@ -18,7 +19,7 @@ function start(){
  for(let i=0;i<3;i++){const band=mesh(new T.TorusGeometry(6.7-i*.5,.3,8,32),dark,hull,[0,-7+i*6,0]);band.rotation.x=Math.PI/2;}
  const windowMat=new T.MeshStandardMaterial({color:0x245b79,emissive:0x153b52,metalness:.75,roughness:.15});
  for(const side of [-1,1]){const window=mesh(new T.BoxGeometry(3,5,1),windowMat,hull,[side*2,13,4]);window.rotation.x=-.35;mesh(new T.BoxGeometry(10,.5,17),dark,hull,[side*12,-2,0]);for(let i=0;i<5;i++)mesh(new T.BoxGeometry(10,.1,.15),silver,hull,[side*12,-1.7,-7+i*3.5]);mesh(new T.CylinderGeometry(2,3.4,6,24,true),dark,hull,[side*4,-15,0]);mesh(new T.SphereGeometry(1.2,12,8),gold,hull,[side*7,-7,0]);}
- const flames=[];for(const side of [-1,1]){const f=mesh(new T.ConeGeometry(2.5,19,20),new T.MeshBasicMaterial({color:0x8fd6ff,transparent:true,opacity:.65}),hull,[side*4,-26,0]);f.rotation.z=Math.PI;flames.push(f);}
+ const flames=[];for(const side of [-1,1]){const f=mesh(new T.ConeGeometry(2.5,19,20),new T.MeshBasicMaterial({color:0x8fd6ff,transparent:true,opacity:.65}),hull,[side*4,-26,0]);f.rotation.z=Math.PI;f.userData.exhaust=true;flames.push(f);}
  const stationPoint=new T.Vector3(0,0,-1400),station=new T.Group();station.position.copy(stationPoint);scene.add(station);
  const ring=mesh(new T.TorusGeometry(90,10,16,80),silver,station);mesh(new T.CylinderGeometry(18,18,90,24),dark,station).rotation.x=Math.PI/2;
  for(const side of [-1,1]){mesh(new T.BoxGeometry(180,3,5),silver,station,[side*100,0,0]);mesh(new T.BoxGeometry(105,100,3),dark,station,[side*170,0,0]);for(let i=-2;i<3;i++)mesh(new T.BoxGeometry(105,1,3.5),gold,station,[side*170,i*20,0]);}
@@ -58,6 +59,7 @@ function start(){
  function hud(){const d=dockingStatus(s,stationPoint);$('dock-range').textContent=d.distance>1000?(d.distance/1000).toFixed(2)+' km':Math.round(d.distance)+' m';$('alignment').textContent=d.aligned?'Aligned':'Rotate to corridor';$('dock').style.background=d.ready?'#f0d399':'';$('speed').innerHTML=s.velocity.length().toFixed(0)+' <small>m/s</small>';$('throttle').textContent=Math.round(s.throttle*100)+'%';$('throttle-fill').style.width=s.throttle*100+'%';$('fuel').textContent=s.fuel.toFixed(1)+'%';$('fuel-fill').style.width=s.fuel+'%';$('flight-time').textContent='MISSION TIME '+String(Math.floor(s.elapsed/60)).padStart(2,'0')+':'+String(Math.floor(s.elapsed%60)).padStart(2,'0');$('target-range').textContent=Math.max(0,(s.position.distanceTo(selected.center)-selected.radius)/1000).toFixed(2)+' km';euler.setFromQuaternion(s.attitude,'YXZ');const degrees=v=>Math.round(v*180/Math.PI);$('angles').textContent=`P ${degrees(euler.x)}°  Y ${degrees(euler.y)}°  R ${degrees(euler.z)}°`;
  const g=$('attitude').getContext('2d');g.clearRect(0,0,110,110);g.save();g.beginPath();g.arc(55,55,48,0,Math.PI*2);g.clip();g.translate(55,55);g.rotate(-euler.z);const y=euler.x*30;g.fillStyle='#23495c';g.fillRect(-100,-150+y,200,150);g.fillStyle='#4b4035';g.fillRect(-100,y,200,150);g.strokeStyle='#b6f4de';g.beginPath();g.moveTo(-90,y);g.lineTo(90,y);g.stroke();g.restore();g.strokeStyle='#d8ecdf';g.beginPath();g.moveTo(25,55);g.lineTo(45,55);g.lineTo(55,62);g.lineTo(65,55);g.lineTo(85,55);g.stroke();
  }
+ const multiplayer=installMultiplayer({scene,ship,get:()=>({...s,status:paused||document.hidden||document.querySelector('dialog[open]')?'paused':s.status}),spawn:(position,attitude)=>{s=newFlight(position);if(attitude)s.attitude.fromArray(attitude);setPaused(false);},notice});
  function frame(ms){const dt=Math.min((ms-last)/1000||0,.1);last=ms;if(!paused&&desktop()&&!document.querySelector('dialog[open]')){accumulator+=dt;while(accumulator>=1/120){flightStep(s,keys,1/120,{gravity:gravity?{center:selected.center,radius:selected.radius,strength:5}:null,mouseX,mouseY});accumulator-=1/120;}mouseX*=.8;mouseY*=.8;
  for(const p of planets)if(s.status==='flying'&&s.position.distanceTo(p.center)<p.radius+15){result('Surface contact.','Free-flight hull contact ended this flight. Use the destination’s landing expedition for a guided surface approach.');break;}
  }else accumulator=0;
@@ -66,6 +68,6 @@ function start(){
  if(view==='cockpit'){offset.set(0,4,-13).applyQuaternion(s.attitude);camera.position.copy(s.position).add(offset);camera.quaternion.copy(s.attitude).multiply(new T.Quaternion().setFromEuler(new T.Euler(pitch-.22,yaw,0,'YXZ')));}
  else{offset.set(Math.sin(yaw)*Math.cos(pitch)*zoom,Math.sin(pitch)*zoom,Math.cos(yaw)*Math.cos(pitch)*zoom);if(view==='chase')offset.applyQuaternion(s.attitude);camera.position.copy(s.position).add(offset);camera.up.set(0,1,0);if(view==='chase')camera.up.applyQuaternion(s.attitude);camera.lookAt(s.position);}
  if(s.velocity.length()>.5){temp.copy(s.velocity).normalize().multiplyScalar(300).add(s.position);const inFront=temp.clone().sub(camera.position).dot(camera.getWorldDirection(new T.Vector3()))>0;temp.project(camera);$('velocity-marker').hidden=!inFront||Math.abs(temp.x)>1||Math.abs(temp.y)>1;$('velocity-marker').style.left=(temp.x*.5+.5)*innerWidth+'px';$('velocity-marker').style.top=(-temp.y*.5+.5)*innerHeight+'px';}else $('velocity-marker').hidden=true;
- if(desktop())renderer.render(scene,camera);if(++frames%4===0)hud();requestAnimationFrame(frame);}
+ multiplayer.render(dt);if(desktop())renderer.render(scene,camera);if(++frames%4===0)hud();requestAnimationFrame(frame);}
  hud();requestAnimationFrame(frame);if(desktop())help();
 }
